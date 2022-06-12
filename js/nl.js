@@ -13,6 +13,12 @@ const TICK = 30;
 function main(){
     console.log("Main executed");
     clearScreen();
+    setPixel(SCREEN_WIDTH/2, SCREEN_HEIGHT/2);
+}
+
+function setPixel(x,y){
+    context.fillStyle = "yellow";
+    context.fillRect(x, y, 1, 1);
 }
 
 function clearScreen(){
