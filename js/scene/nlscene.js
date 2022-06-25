@@ -12,19 +12,19 @@ export let LIGHT = {
     'color': getRandomColor()
 }
 
-let sceneObjects = {};
+export let SCENE_OBJECTS = {};
 
 export function update(){
-    renderScene(sceneObjects);
+    renderScene();
 }
 
 function addObject(object){
-    sceneObjects[object.id] = object;
+    SCENE_OBJECTS[object.id] = object;
 }
 
 function removeObject(object){
     let key = object.id;
-    delete sceneObjects.object.key;
+    delete SCENE_OBJECTS.object.key;
 }
 
 

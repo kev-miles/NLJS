@@ -1,8 +1,8 @@
 import { setPixel, clearScreen, defineRGBColor, operateOnColors, SCREEN_HEIGHT, SCREEN_WIDTH } from '../../canvas/nlcanvas.js'
-import { CAMERA, LIGHT } from '../nlscene.js';
-import { getRandomColor } from '../elements/utils.js';
+import { CAMERA, LIGHT, SCENE_OBJECTS } from '../nlscene.js';
+import { getDotProduct, getRandomColor } from '../elements/utils.js';
 
-export function renderScene(sceneObjects){
+export function renderScene(){
     clearScreen();
     renderViewportToCanvas();
 }
@@ -26,7 +26,33 @@ function getSceneDataForPixel(x,y) {
 }
 
 function traceRayToPoint(point) {
-    let step = 0.001;
+
+    Object.values(SCENE_OBJECTS).forEach(element => {
+        let origin = CAMERA.position;
+        
+        //ray = origin + t*distance
+        let vecResult = {
+            'x':origin.x + t*(point.x - origin.x)-element.position.x,
+            'y':origin.y + t*(point.y - origin.y)-element.position.y,
+            'z':origin.z + t*(point.z - origin.z)-element.position.z
+        };
+
+        if(getDotProduct(vecResult) === element.radious*element.radious){
+            return {
+                'position': {
+                    'x': CAMERA.position.x + vecResult.x,
+                    'y': CAMERA.position.y + vecResult.y,
+                    'z': CAMERA.position.z + vecResult.z
+                },
+                'color': element.color,
+                'hit': true
+            };
+        }
+    });
+
+    return defaultHitResult();
+    
+    /*let step = 0.001;
     for(let z=0; x<point.x; x+step){
         let position = CAMERA.position.x + step * (point.z-CAMERA.position.z)
         //let hitSomething = check if something was hit
@@ -41,9 +67,7 @@ function traceRayToPoint(point) {
                 'hit': false
             };
         }
-    }
-
-    return defaultHitResult();
+    }*/
 }
 
 function defaultHitResult(){

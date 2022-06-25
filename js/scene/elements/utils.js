@@ -7,3 +7,9 @@ export function getRandomColor(){
              'g' : Math.random() * 255,
              'b' : Math.random() * 255};
 }
+
+export function getDotProduct(point, origin){
+    return ((point.x-origin.x)*(point.x-origin.x) + 
+           (point.y-origin.y)*(point.y-origin.y) + 
+           (point.z-origin.z)*(point.z-origin.z))
+}
