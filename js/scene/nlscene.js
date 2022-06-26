@@ -1,20 +1,21 @@
 import { renderScene } from './renderer/nlrenderer.js'
 import { createSphere } from './elements/geometry.js'
-import { getRandomColor } from './elements/utils.js'
+import { getRandomColor, Vector3 } from './elements/utils.js'
 
 export let CAMERA = {
-    'position': {'x':0, 'y':0, 'z':0},
+    'position': new Vector3(0,0,0),
     'viewport': {'width': 1, 'height': 1, 'distance': 1}
 }
 
 export let LIGHT = {
-    'position': {'x':0, 'y':0, 'z':0},
+    'position': new Vector3(0,0,0),
     'color': getRandomColor()
 }
 
 export let SCENE_OBJECTS = {};
 
 export function update(){
+    addObject(createSphere(new Vector3(0,0,0.5),5,getRandomColor()));
     renderScene();
 }
 

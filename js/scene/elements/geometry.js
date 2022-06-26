@@ -1,4 +1,4 @@
-import { getRandomId, getRandomColor, getDotProduct } from "./utils.js";
+import { getRandomId, getRandomColor, getDotProduct, Vector3 } from "./utils.js";
 
 
 export function createSphere(center, radious, color) {
@@ -6,7 +6,7 @@ export function createSphere(center, radious, color) {
     let c = center;
     return {
         'id': getRandomId(),
-        'position': { 'x': center.x, 'y':center.y, 'z':center.z},
+        'position': center,
         'radious': radious,
         'color': color === undefined ? getRandomColor() : color,
         'isPointInObject': function(point)

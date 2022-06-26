@@ -1,5 +1,5 @@
-export const SCREEN_WIDTH = window.innerWidth;
-export const SCREEN_HEIGHT = window.innerHeight;
+export const SCREEN_WIDTH = 320//window.innerWidth;
+export const SCREEN_HEIGHT = 200//window.innerHeight;
 
 const canvas = document.createElement("canvas");
 canvas.setAttribute("width", SCREEN_WIDTH);

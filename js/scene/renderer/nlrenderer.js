@@ -1,6 +1,6 @@
 import { setPixel, clearScreen, defineRGBColor, operateOnColors, SCREEN_HEIGHT, SCREEN_WIDTH } from '../../canvas/nlcanvas.js'
 import { CAMERA, LIGHT, SCENE_OBJECTS } from '../nlscene.js';
-import { getDotProduct, getRandomColor } from '../elements/utils.js';
+import { getDotProduct, getRandomColor, Vector3, RaycastHit } from '../elements/utils.js';
 
 export function renderScene(){
     clearScreen();
@@ -11,7 +11,8 @@ function renderViewportToCanvas(){
     for(let screenX = -SCREEN_WIDTH/2; screenX<=SCREEN_WIDTH/2; screenX++){
         for(let screenY = -SCREEN_HEIGHT/2; screenY<=SCREEN_HEIGHT/2; screenY++){
             let data = getSceneDataForPixel(screenX,screenY);
-            setPixel(screenX,screenY, data.color);
+            traceRayToPoint(new Vector3(data.x, data.y, data.z));
+            //setPixel(screenX,screenY, data.color);
         }
     }
 }
@@ -29,45 +30,25 @@ function traceRayToPoint(point) {
 
     Object.values(SCENE_OBJECTS).forEach(element => {
         let origin = CAMERA.position;
-        
-        //ray = origin + t*distance
-        let vecResult = {
-            'x':origin.x + t*(point.x - origin.x)-element.position.x,
-            'y':origin.y + t*(point.y - origin.y)-element.position.y,
-            'z':origin.z + t*(point.z - origin.z)-element.position.z
-        };
 
-        if(getDotProduct(vecResult) === element.radious*element.radious){
-            return {
-                'position': {
-                    'x': CAMERA.position.x + vecResult.x,
-                    'y': CAMERA.position.y + vecResult.y,
-                    'z': CAMERA.position.z + vecResult.z
-                },
-                'color': element.color,
-                'hit': true
-            };
+        let origin2center =  element.position.sub(origin);
+        let direction = origin.sub(point);
+        let radiousSqrd = Math.pow(element.radious,2);
+
+        let a = point.sub(origin).selfDotProduct();
+        let b = 2*origin2center.dotProduct(direction);
+        let c = origin2center.selfDotProduct()-radiousSqrd;
+
+        let t1 = (-b + Math.sqrt(Math.pow(b,2)-4*a*c))/(2*a);
+        let t2 = (-b - Math.sqrt(Math.pow(b,2)-4*a*c))/(2*a);
+
+        if(t1>1){
+            console.log(t1);
+        }
+        if(t2>1){
+            console.log(t2);
         }
     });
-
-    return defaultHitResult();
-    
-    /*let step = 0.001;
-    for(let z=0; x<point.x; x+step){
-        let position = CAMERA.position.x + step * (point.z-CAMERA.position.z)
-        //let hitSomething = check if something was hit
-        if(hitSomething){
-            return {
-                'position': {
-                    'x': CAMERA.position.x + step * (point.x-CAMERA.position.x),
-                    'y': CAMERA.position.y + step * (point.y-CAMERA.position.y),
-                    'z': CAMERA.position.z + step * (point.z-CAMERA.position.z)
-                },
-                'color': defineRGBColor(0,0,0),
-                'hit': false
-            };
-        }
-    }*/
 }
 
 function defaultHitResult(){
