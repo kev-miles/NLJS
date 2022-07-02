@@ -11,5 +11,5 @@ export function createSphere(center, radious, color) {
         'color': color === undefined ? getRandomColor() : color,
         'isPointInObject': function(point)
         { console.log("r= "+r+" c="+c); return getDotProduct(point, c) === r*r;}
-    }
+    };
 }

@@ -1,6 +1,7 @@
 import { renderScene } from './renderer/nlrenderer.js'
 import { createSphere } from './elements/geometry.js'
 import { getRandomColor, Vector3 } from './elements/utils.js'
+import { defineRGBColor } from '../canvas/nlcanvas.js'
 
 export let CAMERA = {
     'position': new Vector3(0,0,0),
@@ -15,7 +16,9 @@ export let LIGHT = {
 export let SCENE_OBJECTS = {};
 
 export function update(){
-    addObject(createSphere(new Vector3(0,0,0.5),5,getRandomColor()));
+    addObject(createSphere(new Vector3(0,-1,3),1,defineRGBColor(0,255,255)));
+    addObject(createSphere(new Vector3(2,0,4),1,defineRGBColor(255,255,0)));
+    addObject(createSphere(new Vector3(-2,0,4),1,defineRGBColor(255,0,255)));
     renderScene();
 }
 

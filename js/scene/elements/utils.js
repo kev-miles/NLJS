@@ -28,8 +28,8 @@ export class Vector2 {
         return new Vector2(this.x - otherVector.x, this.y - otherVector.y);
     };
     dotProduct(otherVector){
-        return ((this.x-otherVector.x)*(this.x-otherVector.x) + 
-               (this.y-otherVector.y)*(this.y-otherVector.y));
+        return this.x * otherVector.x + 
+               this.y * otherVector.y;
     }
     selfDotProduct(){
         return this.x * this.x + this.y * this.y;
@@ -55,7 +55,7 @@ export class Vector3 extends Vector2 {
     };
     dotProduct(otherVector){
         return super.dotProduct(otherVector) + 
-               (this.z - otherVector.z)*(this.z-otherVector.z);
+               this.z * otherVector.z;
     }
     selfDotProduct(){
         return super.selfDotProduct() + this.z * this.z;

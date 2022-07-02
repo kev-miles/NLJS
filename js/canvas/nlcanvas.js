@@ -18,7 +18,7 @@ const operations = {
 };
 
 export function clearScreen(){
-    context.fillStyle = "magenta";
+    context.fillStyle = "black";
     context.fillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 }
 
