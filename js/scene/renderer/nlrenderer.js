@@ -1,27 +1,28 @@
-import { setPixel, clearScreen, defineRGBColor, operateOnColors, SCREEN_HEIGHT, SCREEN_WIDTH } from '../../canvas/nlcanvas.js'
-import { CAMERA, LIGHT, SCENE_OBJECTS } from '../nlscene.js';
-import { getDotProduct, getRandomColor, Vector3, RaycastHit } from '../elements/utils.js';
+import * as Color from '../../utilities/nlcolor.js';
+import * as Screen from '../../canvas/nlcanvas.js'
+import { CAMERA, SCENE_OBJECTS } from '../nlscene.js';
+import { Vector3 } from '../../utilities/nlmath.js';
 
 export function renderScene(){
-    clearScreen();
+    Screen.clear();
     renderViewportToCanvas();
 }
 
 function renderViewportToCanvas(){
     let origin = CAMERA.position;
 
-    for(let screenX = -SCREEN_WIDTH/2; screenX<=SCREEN_WIDTH/2; screenX++){
-        for(let screenY = -SCREEN_HEIGHT/2; screenY<=SCREEN_HEIGHT/2; screenY++){
+    for(let screenX = -Screen.WIDTH/2; screenX<=Screen.WIDTH/2; screenX++){
+        for(let screenY = -Screen.HEIGHT/2; screenY<=Screen.HEIGHT/2; screenY++){
             let dest = canvasToViewport(screenX,screenY);
-            setPixel(screenX,screenY, traceRayToPoint(origin,dest, 1, Infinity));
+            Screen.setPixel(screenX,screenY, traceRayToPoint(origin,dest, 1, Infinity));
         }
     }
 }
 
 function canvasToViewport(x,y) {
-    return new Vector3(x * (CAMERA.viewport.width/SCREEN_WIDTH),
-                       y * (CAMERA.viewport.height/SCREEN_HEIGHT),
-                       CAMERA.viewport.distance);
+    return new Vector3(x * (CAMERA.viewport.width/Screen.WIDTH),
+                       y * (CAMERA.viewport.height/Screen.HEIGHT),
+                            CAMERA.viewport.distance);
 }
 
 function traceRayToPoint(origin, dest, min, max){
@@ -45,7 +46,11 @@ function traceRayToPoint(origin, dest, min, max){
 
     });
 
-    return (closest_object == null ? defineRGBColor(0,0,0) : closest_object.color);
+    /*console.log(closest_object + " ");
+    if(closest_object != null)
+        console.log(closest_object.color);*/
+
+    return (closest_object == null ? new Color.NLColor(0,0,0) : closest_object.color);
 }
 
 function intersectObjects(origin, dest, object) {
@@ -66,19 +71,5 @@ function intersectObjects(origin, dest, object) {
     let t1 = (-b + Math.sqrt(discriminant))/(2*a);
     let t2 = (-b - Math.sqrt(discriminant))/(2*a);
 
-    console.log("t1, t2: " + t1, t2);
-
     return t1, t2;
-}
-
-function defaultHitResult(){
-    return {
-        'position': {
-            'x': CAMERA.position.x + step * (point.x-CAMERA.position.x),
-            'y': CAMERA.position.y + step * (point.y-CAMERA.position.y),
-            'z': CAMERA.position.z + step * (point.z-CAMERA.position.z)
-        },
-        'color': defineRGBColor(0,0,0),
-        'hit': false
-    }
 }

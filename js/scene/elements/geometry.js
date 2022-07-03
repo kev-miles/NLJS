@@ -1,15 +1,16 @@
-import { getRandomId, getRandomColor, getDotProduct, Vector3 } from "./utils.js";
+import * as Color from '../../utilities/nlcolor.js'
+import * as NLMath from '../../utilities/nlmath.js'
+import { NLID } from '../../utilities/nlid.js';
 
+export class Sphere {
+    constructor(center, radious, color = Color.getRandomColor()){
+        this.id = NLID();
+        this.position = center;
+        this.radious = radious;
+        this.color = color;
+    }
 
-export function createSphere(center, radious, color) {
-    let r = radious;
-    let c = center;
-    return {
-        'id': getRandomId(),
-        'position': center,
-        'radious': radious,
-        'color': color === undefined ? getRandomColor() : color,
-        'isPointInObject': function(point)
-        { console.log("r= "+r+" c="+c); return getDotProduct(point, c) === r*r;}
-    };
+    isPointInObject(point){
+        return point.dotProduct(center) === r*r;
+    }
 }

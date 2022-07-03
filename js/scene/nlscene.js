@@ -1,24 +1,20 @@
+import * as Color from '../utilities/nlcolor.js'
+import * as Geometry from './elements/geometry.js'
+import * as Light from './elements/light.js'
 import { renderScene } from './renderer/nlrenderer.js'
-import { createSphere } from './elements/geometry.js'
-import { getRandomColor, Vector3 } from './elements/utils.js'
-import { defineRGBColor } from '../canvas/nlcanvas.js'
+import { Vector3 } from '../utilities/nlmath.js'
 
 export let CAMERA = {
     'position': new Vector3(0,0,0),
     'viewport': {'width': 1, 'height': 1, 'distance': 1}
 }
 
-export let LIGHT = {
-    'position': new Vector3(0,0,0),
-    'color': getRandomColor()
-}
-
 export let SCENE_OBJECTS = {};
 
 export function update(){
-    addObject(createSphere(new Vector3(0,-1,3),1,defineRGBColor(0,255,255)));
-    addObject(createSphere(new Vector3(2,0,4),1,defineRGBColor(255,255,0)));
-    addObject(createSphere(new Vector3(-2,0,4),1,defineRGBColor(255,0,255)));
+    addObject(new Geometry.Sphere(new Vector3(0,-1,3),1, new Color.NLColor(0,255,255)));
+    addObject(new Geometry.Sphere(new Vector3(2,0,4),1, new Color.NLColor(255,255,0)));
+    addObject(new Geometry.Sphere(new Vector3(-2,0,4),1,new Color.NLColor(255,0,255)));
     renderScene();
 }
 
