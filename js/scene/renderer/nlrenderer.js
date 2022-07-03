@@ -1,6 +1,7 @@
 import * as Color from '../../utilities/nlcolor.js';
 import * as Screen from '../../canvas/nlcanvas.js'
-import { CAMERA, SCENE_OBJECTS } from '../nlscene.js';
+import { getClass } from '../../utilities/nlclass.js';
+import { CAMERA, SCENE_OBJECTS, SCENE_LIGHTS } from '../nlscene.js';
 import { Vector3 } from '../../utilities/nlmath.js';
 
 export function renderScene(){
@@ -46,11 +47,18 @@ function traceRayToPoint(origin, dest, min, max){
 
     });
 
-    /*console.log(closest_object + " ");
-    if(closest_object != null)
-        console.log(closest_object.color);*/
+    return (closest_object == null ? new Color.NLColor(0,0,0) : calculateColor(origin, dest, closest_t, closest_object));
+}
 
-    return (closest_object == null ? new Color.NLColor(0,0,0) : closest_object.color);
+function calculateColor(origin, dest, closest_t, object){
+    let point = origin.add(new Vector3(closest_t * dest.x, closest_t * dest.y, closest_t * dest.z));
+    let normal = point.sub(object.position);
+    let n = new Vector3(normal.x / normal.selfDotProduct(),
+                        normal.y / normal.selfDotProduct(),
+                        normal.z / normal.selfDotProduct());
+
+    //TODO: complete lighting calculations
+    return object.color;
 }
 
 function intersectObjects(origin, dest, object) {
@@ -72,4 +80,38 @@ function intersectObjects(origin, dest, object) {
     let t2 = (-b - Math.sqrt(discriminant))/(2*a);
 
     return t1, t2;
+}
+
+function computeLighting(point, normal){
+    let overall_intensity = 0.0;
+
+    Object.values(SCENE_LIGHTS).forEach(light => {
+        overall_intensity += operateOnLightType(point, normal, light);
+    });
+}
+
+function operateOnLightType(point, normal, light){
+    return (getClass(light) === "AmbientLight" 
+        ? light.intensity
+        : getClass(light) === "PointLight" 
+        ? calculatePointLight(point, normal, light)
+        : calculateDirectionalLight(normal, light));
+}
+
+function calculatePointLight(point, normal, light){
+    let l = light.position.sub(point);
+    let ndotl = l.dotProduct(normal);
+
+    if(ndotl > 0){
+        return light.intensity * ndotl/(selfDotProduct(normal)*selfDotProduct(l));
+    }
+}
+
+function calculateDirectionalLight(normal, light){
+    let l = light.direction;
+    let ndotl = l.dotProduct(normal);
+
+    if(ndotl > 0){
+        return light.intensity * ndotl/(selfDotProduct(normal)*selfDotProduct(l));
+    }
 }
