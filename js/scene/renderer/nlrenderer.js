@@ -7,17 +7,23 @@ import { Vector3 } from '../../utilities/nlmath.js';
 export function renderScene(){
     Screen.clear();
     renderViewportToCanvas();
+    Screen.update();
 }
 
 function renderViewportToCanvas(){
     let origin = CAMERA.position;
 
+    let screenX = Screen.WIDTH/2;
+    let screenY = Screen.HEIGHT/2;
+
     for(let screenX = -Screen.WIDTH/2; screenX<=Screen.WIDTH/2; screenX++){
         for(let screenY = -Screen.HEIGHT/2; screenY<=Screen.HEIGHT/2; screenY++){
-            let dest = canvasToViewport(screenX,screenY);
-            Screen.setPixel(screenX,screenY, traceRayToPoint(origin,dest, 1, Infinity));
+            let direction = canvasToViewport(screenX,screenY);
+            Screen.setPixel(screenX,screenY, traceRayToPoint(origin,direction, 1, Infinity));
         }
     }
+
+    console.log(performance.now());
 }
 
 function canvasToViewport(x,y) {
@@ -26,14 +32,14 @@ function canvasToViewport(x,y) {
                             CAMERA.viewport.distance);
 }
 
-function traceRayToPoint(origin, dest, min, max){
+function traceRayToPoint(origin, direction, min, max){
 
     let closest_t = Infinity;
     let closest_object = null;
 
     Object.values(SCENE_OBJECTS).forEach(element => {
 
-        let t1, t2 = intersectObjects(origin, dest, element);
+        let t1, t2 = intersectObjects(origin, direction, element);
 
         if(t1 > min && t1 < max && t1 < closest_t){
             closest_t = t1;
@@ -47,27 +53,16 @@ function traceRayToPoint(origin, dest, min, max){
 
     });
 
-    return (closest_object == null ? new Color.NLColor(0,0,0) : calculateColor(origin, dest, closest_t, closest_object));
+    return (closest_object == null ? new Color.NLColor(0,0,0) : calculateColor(origin, direction, closest_t, closest_object));
 }
 
-function calculateColor(origin, dest, closest_t, object){
-    let point = origin.add(new Vector3(closest_t * dest.x, closest_t * dest.y, closest_t * dest.z));
-    let normal = point.sub(object.position);
-    let n = new Vector3(normal.x / normal.selfDotProduct(),
-                        normal.y / normal.selfDotProduct(),
-                        normal.z / normal.selfDotProduct());
-
-    //TODO: complete lighting calculations
-    return object.color;
-}
-
-function intersectObjects(origin, dest, object) {
+function intersectObjects(origin, direction, object) {
 
     let origin2center = origin.sub(object.position);
     let radiousSqrd = Math.pow(object.radious,2);
 
-    let a = dest.selfDotProduct();
-    let b = 2*origin2center.dotProduct(dest);
+    let a = direction.selfDotProduct();
+    let b = 2*origin2center.dotProduct(direction);
     let c = origin2center.selfDotProduct()-radiousSqrd;
 
     let discriminant = b*b-4*a*c;
@@ -82,36 +77,67 @@ function intersectObjects(origin, dest, object) {
     return t1, t2;
 }
 
-function computeLighting(point, normal){
-    let overall_intensity = 0.0;
+function calculateColor(origin, direction, closest_t, object){
+    let point = origin.add(direction.multiplyByScalar(closest_t));
+    let normal = point.sub(object.position);
+    let n = new Vector3(normal.x / normal.selfDotProduct(),
+                        normal.y / normal.selfDotProduct(),
+                        normal.z / normal.selfDotProduct());
 
-    Object.values(SCENE_LIGHTS).forEach(light => {
-        overall_intensity += operateOnLightType(point, normal, light);
-    });
+    return Color.operateOnColors(object.material.color, computeLighting(point, n, direction.multiplyByScalar(-1), object.material), "*");
 }
 
-function operateOnLightType(point, normal, light){
+function computeLighting(point, normal, view, objectMaterial){
+    let overall_intensity = 0.0;
+    let overall_color = new Color.NLColor(0,0,0);
+
+    Object.values(SCENE_LIGHTS).forEach(light => {
+        if(light.intensity > 0){
+            overall_intensity += operateOnLightType(point, normal, view, objectMaterial, light);
+            overall_color = Color.operateOnColors(overall_color, light.color.multiplyByScalar(overall_intensity), "+");
+        }  
+    });
+
+    return overall_color;
+}
+
+function operateOnLightType(point, normal, view, material, light){
     return (getClass(light) === "AmbientLight" 
         ? light.intensity
         : getClass(light) === "PointLight" 
-        ? calculatePointLight(point, normal, light)
-        : calculateDirectionalLight(normal, light));
+        ? calculatePointLight(point, normal, view, material, light)
+        : calculateDirectionalLight(normal, view, material, light));
 }
 
-function calculatePointLight(point, normal, light){
+function calculatePointLight(point, normal, view, material, light){
     let l = light.position.sub(point);
     let ndotl = l.dotProduct(normal);
 
-    if(ndotl > 0){
-        return light.intensity * ndotl/(selfDotProduct(normal)*selfDotProduct(l));
-    }
+    return (ndotl > 0
+        ? light.intensity * ndotl/(normal.selfDotProduct()*l.selfDotProduct()) 
+            + factorInSpecularValue(light.intensity, l, normal, view, material.specular)
+        : 0);
 }
 
-function calculateDirectionalLight(normal, light){
+function calculateDirectionalLight(normal, view, material, light){
     let l = light.direction;
     let ndotl = l.dotProduct(normal);
 
-    if(ndotl > 0){
-        return light.intensity * ndotl/(selfDotProduct(normal)*selfDotProduct(l));
-    }
+    return (ndotl > 0
+            ? light.intensity * ndotl/(normal.selfDotProduct()*l.selfDotProduct()) 
+              + factorInSpecularValue(light.intensity, l, normal, view, material.specular)
+            : 0);
+}
+
+function factorInSpecularValue(intensity, lightVector, normal, view, specular){
+    if(specular === -1) return 0;
+
+    //2*N*dot(N,L)-L
+    let reflection = normal.multiplyByScalar(normal.dotProduct(lightVector)*2).sub(lightVector);
+
+    let rdotv = reflection.dotProduct(view);
+
+    return (rdotv > 0 
+            ? intensity * Math.pow(rdotv/(reflection.selfDotProduct() * view.selfDotProduct()), specular)
+            : 0);
 }

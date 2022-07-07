@@ -1,74 +1,97 @@
 const operations = {
     "+": 1,
+    "add": 1,
+
     "*": 2,
+    "mul": 2,
+
     "-": 3,
-    "/": 4
+    "sub": 3,
+
+    "/": 4,
+    "div": 4,
 };
 
 export class NLColor {
-    constructor(red,green,blue,normalized = false){
-        this.r = red;
-        this.g = green;
-        this.b = blue;
+    constructor(red,green,blue, alpha = 255, normalized = false){
+        this.r = red < 255 ? red : 255;
+        this.g = green < 255 ? green : 255;
+        this.b = blue < 255 ? blue : 255;
+        this.a = alpha < 255 ? alpha : 255;
         this.normalized = normalized;
     };
 
-    normalizeColor(color){
-        return new NLColor(normalizeChannelValue(color.r),
-                           normalizeChannelValue(color.g),
-                           normalizeChannelValue(color.b),
+    isNormalized(){
+        return this.normalized;
+    }
+
+    normalize(){
+        return new NLColor(normalizeChannelValue(this.r),
+                           normalizeChannelValue(this.g),
+                           normalizeChannelValue(this.b),
+                           normalizeChannelValue(this.a),
                            true)
     }
     
-    normalizedColorToByte(color){
-        return new NLColor(normalizedChannelToByte(color.r),
-                           normalizedChannelToByte(color.g),
-                           normalizedChannelToByte(color.b))
+    toByteValue(){
+        return new NLColor(normalizedChannelToByte(this.r),
+                           normalizedChannelToByte(this.g),
+                           normalizedChannelToByte(this.b),
+                           normalizedChannelToByte(this.a),
+                           false)
+    }
+
+    multiplyByScalar(scalarValue){
+        return new NLColor(this.r * scalarValue,
+                           this.g * scalarValue,
+                           this.b * scalarValue,
+                           this.a * scalarValue,
+                           false)
     }
 }
 
 export function getRandomColor(){
-    return new Color(Math.random() * 255, Math.random() * 255, Math.random() * 255);
+    return new NLColor(Math.random() * 255, Math.random() * 255, Math.random() * 255);
 }
 
 export function operateOnColors(nlColor1, nlColor2, operation) {
 
-    let normalizedColor1 = normalizeColor(nlColor1);
-    let normalizedColor2 = normalizeColor(nlColor2);
+    let normalizedColor1 = nlColor1.normalize();
+    let normalizedColor2 = nlColor2.normalize();
 
     switch(operations[operation]) {
         case 1:
-            return normalizedColorToByte(add(normalizedColor1, normalizedColor2));
+            return add(normalizedColor1, normalizedColor2).toByteValue();
         case 2:
-            return normalizedColorToByte(mul(normalizedColor1, normalizedColor2));
+            return mul(normalizedColor1, normalizedColor2).toByteValue();
         case 3:
-            return normalizedColorToByte(sub(normalizedColor1, normalizedColor2));
+            return sub(normalizedColor1, normalizedColor2).toByteValue();
         case 4:
-            return normalizedColorToByte(div(normalizedColor1, normalizedColor2));
+            return div(normalizedColor1, normalizedColor2).toByteValue();
         default:
-            return new Colors.NLColor();
+            return new NLColor(0,0,0);
       }
 }
 
 function add(rgbColor1, rgbColor2){
-    return new Colors.NLColor(rgbColor1.r + rgbColor2.r, 
-                              rgbColor1.g + rgbColor2.g,
-                              rgbColor1.b + rgbColor2.b)
+    return new NLColor(rgbColor1.r + rgbColor2.r, 
+                       rgbColor1.g + rgbColor2.g,
+                       rgbColor1.b + rgbColor2.b)
 }
 function mul(rgbColor1, rgbColor2){
-    return new Colors.NLColor(rgbColor1.r * rgbColor2.r, 
-                              rgbColor1.g * rgbColor2.g,
-                              rgbColor1.b * rgbColor2.b)
+    return new NLColor(rgbColor1.r * rgbColor2.r, 
+                       rgbColor1.g * rgbColor2.g,
+                       rgbColor1.b * rgbColor2.b)
 }
 function sub(rgbColor1, rgbColor2){
-    return new Colors.NLColor(rgbColor1.r - rgbColor2.r, 
-                              rgbColor1.g - rgbColor2.g,
-                              rgbColor1.b - rgbColor2.b)
+    return new NLColor(rgbColor1.r - rgbColor2.r, 
+                       rgbColor1.g - rgbColor2.g,
+                       rgbColor1.b - rgbColor2.b)
 }
 function div(rgbColor1, rgbColor2){
-    return new Colors.NLColor(rgbColor1.r / rgbColor2.r, 
-                              rgbColor1.g / rgbColor2.g,
-                              rgbColor1.b / rgbColor2.b)
+    return new NLColor(rgbColor1.r / rgbColor2.r, 
+                       rgbColor1.g / rgbColor2.g,
+                       rgbColor1.b / rgbColor2.b)
 }
 
 function normalizedChannelToByte(value){

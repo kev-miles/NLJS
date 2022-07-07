@@ -23,9 +23,7 @@ export class PointLight extends Light {
 
     constructor(position, color, intensity){
         super(color,intensity);
-        this.x = position.x;
-        this.y = position.y;
-        this.z = position.z;
+        this.position = position;
         this.type = "point";
     };
     
