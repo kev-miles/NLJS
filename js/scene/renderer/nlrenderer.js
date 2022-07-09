@@ -13,9 +13,6 @@ export function renderScene(){
 function renderViewportToCanvas(){
     let origin = CAMERA.position;
 
-    let screenX = Screen.WIDTH/2;
-    let screenY = Screen.HEIGHT/2;
-
     for(let screenX = -Screen.WIDTH/2; screenX<=Screen.WIDTH/2; screenX++){
         for(let screenY = -Screen.HEIGHT/2; screenY<=Screen.HEIGHT/2; screenY++){
             let direction = canvasToViewport(screenX,screenY);
@@ -50,8 +47,9 @@ function traceRayToPoint(origin, direction, min, max){
             closest_t = t2;
             closest_object = element;
         }
-
     });
+
+    
 
     return (closest_object == null 
         ? new Color.NLColor(0,0,0) 
@@ -61,11 +59,10 @@ function traceRayToPoint(origin, direction, min, max){
 function intersectObjects(origin, direction, object) {
 
     let origin2center = origin.sub(object.position);
-    let radiousSqrd = Math.pow(object.radious,2);
 
     let a = direction.selfDotProduct();
     let b = 2*origin2center.dotProduct(direction);
-    let c = origin2center.selfDotProduct()-radiousSqrd;
+    let c = origin2center.selfDotProduct()-object.rsqrd;
 
     let discriminant = b*b-4*a*c;
 

@@ -9,6 +9,7 @@ export class Sphere {
         this.position = center;
         this.radious = radious;
         this.material = material;
+        this.rsqrd = Math.pow(radious,2);
     }
 
     isPointInObject(point){
