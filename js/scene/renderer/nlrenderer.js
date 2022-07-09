@@ -53,7 +53,9 @@ function traceRayToPoint(origin, direction, min, max){
 
     });
 
-    return (closest_object == null ? new Color.NLColor(0,0,0) : calculateColor(origin, direction, closest_t, closest_object));
+    return (closest_object == null 
+        ? new Color.NLColor(0,0,0) 
+        : calculateColor(origin, direction, closest_t, closest_object));
 }
 
 function intersectObjects(origin, direction, object) {
@@ -80,9 +82,7 @@ function intersectObjects(origin, direction, object) {
 function calculateColor(origin, direction, closest_t, object){
     let point = origin.add(direction.multiplyByScalar(closest_t));
     let normal = point.sub(object.position);
-    let n = new Vector3(normal.x / normal.selfDotProduct(),
-                        normal.y / normal.selfDotProduct(),
-                        normal.z / normal.selfDotProduct());
+    let n = normal.multiplyByScalar(1 / normal.magnitude());
 
     return Color.operateOnColors(object.material.color, computeLighting(point, n, direction.multiplyByScalar(-1), object.material), "*");
 }
@@ -114,7 +114,7 @@ function calculatePointLight(point, normal, view, material, light){
     let ndotl = l.dotProduct(normal);
 
     return (ndotl > 0
-        ? light.intensity * ndotl/(normal.selfDotProduct()*l.selfDotProduct()) 
+        ? light.intensity * ndotl/(normal.magnitude()*l.magnitude()) 
             + factorInSpecularValue(light.intensity, l, normal, view, material.specular)
         : 0);
 }
@@ -124,7 +124,7 @@ function calculateDirectionalLight(normal, view, material, light){
     let ndotl = l.dotProduct(normal);
 
     return (ndotl > 0
-            ? light.intensity * ndotl/(normal.selfDotProduct()*l.selfDotProduct()) 
+            ? light.intensity * ndotl/(normal.magnitude()*l.magnitude()) 
               + factorInSpecularValue(light.intensity, l, normal, view, material.specular)
             : 0);
 }
@@ -138,6 +138,6 @@ function factorInSpecularValue(intensity, lightVector, normal, view, specular){
     let rdotv = reflection.dotProduct(view);
 
     return (rdotv > 0 
-            ? intensity * Math.pow(rdotv/(reflection.selfDotProduct() * view.selfDotProduct()), specular)
+            ? intensity * Math.pow(rdotv/(reflection.magnitude() * view.magnitude()), specular)
             : 0);
 }

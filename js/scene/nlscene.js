@@ -20,12 +20,12 @@ export function update(){
     //Scene Objects
     addObject(new Geometry.Sphere(new Vector3(0,-1,3),1,new NLMaterial(new Color.NLColor(0,255,255),0.5)));
     addObject(new Geometry.Sphere(new Vector3(2,0,4),1, new NLMaterial(new Color.NLColor(255,255,0),0.6)));
-    addObject(new Geometry.Sphere(new Vector3(-2,0,4),1,new NLMaterial(new Color.NLColor(255,0,255),1.2)));
+    addObject(new Geometry.Sphere(new Vector3(-2,0,4),1,new NLMaterial(new Color.NLColor(255,0,255),1)));
 
     //Scene Lights
-    addLight(new Light.DirectionalLight(new Vector3(4,2,3), new Color.NLColor(255,0,0), 0));
-    addLight(new Light.AmbientLight(new Color.NLColor(255,255,255), 0.1));
-    addLight(new Light.PointLight(new Vector3(2,1,0), new Color.NLColor(255,255,255), 0.8))
+    addLight(new Light.DirectionalLight(new Vector3(4,2,3), new Color.NLColor(255,0,0), 0.2));
+    addLight(new Light.AmbientLight(new Color.NLColor(255,255,255), 0.2));
+    addLight(new Light.PointLight(new Vector3(2,1,0), new Color.NLColor(255,255,255), 0.6))
 
     renderScene();
 }

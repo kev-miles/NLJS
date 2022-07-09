@@ -50,6 +50,9 @@ export class Vector3 extends Vector2 {
          this.x * otherVector.z - this.z * otherVector.x,
          this.x * otherVector.y - this.y * otherVector.x);
     }
+    magnitude(){
+        return Math.sqrt(this.selfDotProduct());
+    }
     multiplyByScalar(number){
         return new Vector3(this.x * number, this.y * number, this.z * number);
     }

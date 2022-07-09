@@ -1,7 +1,7 @@
 import * as Colors from '../utilities/nlcolor.js'
 
-export const WIDTH = 1024 //window.innerWidth;
-export const HEIGHT = 768 //window.innerHeight;
+export const WIDTH = 640 //window.innerWidth;
+export const HEIGHT = 480 //window.innerHeight;
 
 const canvas = document.createElement("canvas");
 canvas.setAttribute("width", WIDTH);
