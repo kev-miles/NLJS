@@ -49,8 +49,6 @@ function traceRayToPoint(origin, direction, min, max){
         }
     });
 
-    
-
     return (closest_object == null 
         ? new Color.NLColor(0,0,0) 
         : calculateColor(origin, direction, closest_t, closest_object));
@@ -103,27 +101,49 @@ function operateOnLightType(point, normal, view, material, light){
         ? light.intensity
         : getClass(light) === "PointLight" 
         ? calculatePointLight(point, normal, view, material, light)
-        : calculateDirectionalLight(normal, view, material, light));
+        : calculateDirectionalLight(point, normal, view, material, light));
 }
 
 function calculatePointLight(point, normal, view, material, light){
     let l = light.position.sub(point);
     let ndotl = l.dotProduct(normal);
 
-    return (ndotl > 0
+    return (ndotl > 0 && traceShadows(point, l, 0.001, 1)
         ? light.intensity * ndotl/(normal.magnitude()*l.magnitude()) 
             + factorInSpecularValue(light.intensity, l, normal, view, material.specular)
         : 0);
 }
 
-function calculateDirectionalLight(normal, view, material, light){
+function calculateDirectionalLight(point, normal, view, material, light){
     let l = light.direction;
     let ndotl = l.dotProduct(normal);
 
-    return (ndotl > 0
+    return (ndotl > 0 && traceShadows(point, l, 0.001, Infinity)
             ? light.intensity * ndotl/(normal.magnitude()*l.magnitude()) 
               + factorInSpecularValue(light.intensity, l, normal, view, material.specular)
             : 0);
+}
+
+function traceShadows(point, lightVector, min, max){
+    let closest_t = Infinity;
+    let closest_object = null;
+
+    Object.values(SCENE_OBJECTS).forEach(element => {
+
+        let t1, t2 = intersectObjects(point, lightVector, element);
+
+        if(t1 > min && t1 < max && t1 < closest_t){
+            closest_t = t1;
+            closest_object = element;
+        }
+
+        if(t2 > min && t2 < max && t2 < closest_t){
+            closest_t = t2;
+            closest_object = element;
+        }
+    });
+
+    return (closest_object === null ? true : false);
 }
 
 function factorInSpecularValue(intensity, lightVector, normal, view, specular){
